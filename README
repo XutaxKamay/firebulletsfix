@@ -1,0 +1,8 @@
+
+PRE-REQUIRES:
+steam-runtime for compiling: http://media.steampowered.com/client/runtime/steam-runtime-sdk_latest.tar.xz
+sudo apt-get install g++-multilib gcc-multilib
+
+1) Run a terminal and type ./compile.sh
+2) Place .vdf and .so files inside addons folder
+3) Restart server (or use plugin_load addons/sample_plugin) and profit.
