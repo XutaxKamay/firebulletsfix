@@ -89,19 +89,19 @@ class CPatternScan
             return;
         }
 
-        ptr_t startAddr = reinterpret_cast<ptr_t>(lm->l_addr);
+        uintptr_t startAddr = *reinterpret_cast<uintptr_t*>(&lm->l_addr);
         dl_iterate_phdr(getCodeStartAddr, &startAddr);
 
-        if (startAddr == nullptr)
+        if (startAddr == 0)
         {
             Msg("Couldn't find start addr\n");
             return;
         }
 
-        ptr_t endAddr = reinterpret_cast<ptr_t>(lm->l_addr);
+        uintptr_t endAddr = *reinterpret_cast<uintptr_t*>(&lm->l_addr);
         dl_iterate_phdr(getCodeEndAddr, &endAddr);
 
-        if (endAddr == nullptr)
+        if (endAddr == 0)
         {
             Msg("Couldn't find end addr\n");
             return;

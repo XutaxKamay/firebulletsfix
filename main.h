@@ -8,7 +8,9 @@ extern Msg_t Msg;
 #define FORCEINLINE inline
 #endif
 
+#ifdef _WINDLL
 #pragma warning(disable:4100)
+#endif
 
 #if __x86_64__ || __ppc64__
 #define MX64
