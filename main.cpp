@@ -19,8 +19,7 @@ CDetour<void,
         float,
         float,
         float,
-        int,
-        float>* CFireBulletFix::detourFireBullets;
+        int>* CFireBulletFix::detourFireBullets;
 
 CDetour<void, ptr_t, ptr_t, ptr_t, ptr_t>* CFireBulletFix::detourRunCommand;
 
@@ -31,7 +30,7 @@ Msg_t Msg = reinterpret_cast<Msg_t>(
     dlsym(dlopen("bin/engine.so", RTLD_NOW), "Msg"));
 #else
 Msg_t Msg = reinterpret_cast<Msg_t>(
-    GetProcAddress(GetModuleHandleA("bin/tier0.dll"), "Msg"));
+    GetProcAddress(GetModuleHandleA("tier0.dll"), "Msg"));
 #endif
 
 #ifndef _WINDLL
@@ -41,7 +40,7 @@ CPatternScan patternGlobals("csgo/bin/server.so",
 static auto uGlobals = *reinterpret_cast<uintptr_t*>(
     patternGlobals.get<uintptr_t>() + 1);
 #else
-CPatternScan patternGlobals("csgo/bin/server.dll",
+CPatternScan patternGlobals("server.dll",
                             "FF 50 10 A1 ? ? ? ? F3 0F 10 40");
 static auto uGlobals = *reinterpret_cast<uintptr_t*>(
     patternGlobals.get<uintptr_t>() + 4);
@@ -101,7 +100,7 @@ bool CFireBulletFix::Load(CreateInterfaceFn interfaceFactory,
                                            "5D 0C 8B 7D 08 8B 75 10 8B 93")
                                   .get();
 #else
-    auto pRunCommandAddress = CPatternScan("csgo/bin/server.dll",
+    auto pRunCommandAddress = CPatternScan("server.dll",
                                            "55 8B EC 83 E4 F8 83 EC 2C 53 56 "
                                            "8B "
                                            "75 08 8B D9")
@@ -119,7 +118,7 @@ bool CFireBulletFix::Load(CreateInterfaceFn interfaceFactory,
                                         "10 8B 75 14 8B 7D 18 85 DB 0F 84")
                                .get();
 #else
-    auto pFX_FireBullets = CPatternScan("csgo/bin/server.dll",
+    auto pFX_FireBullets = CPatternScan("server.dll",
                                         "55 8B EC 83 E4 F8 81 EC 40 02 00 00")
                                .get();
 #endif
@@ -137,8 +136,7 @@ bool CFireBulletFix::Load(CreateInterfaceFn interfaceFactory,
                                     float,
                                     float,
                                     float,
-                                    int,
-                                    float>(
+                                    int>(
         pFX_FireBullets, reinterpret_cast<ptr_t>(FX_FireBullets));
 
     detourFireBullets->Detour();
@@ -179,7 +177,11 @@ sub_BB9DF0+12C↑j .text:00BB9F2C mov     ecx, [ebp+var_44]
 
 int GetPlayerIndex(uintptr_t Player)
 {
+#ifndef _WINDLL
     auto edict = *reinterpret_cast<uintptr_t*>(Player + 0x24);
+#else
+	auto edict = *reinterpret_cast<uintptr_t*>(Player + 0x1C);
+#endif
     int index = 0;
 
     /*asm volatile( "mov eax, [%1]\n\t"
@@ -212,8 +214,7 @@ void CFireBulletFix::FX_FireBullets(int playerIndex,
                                     float a9,
                                     float a10,
                                     float a11,
-                                    int a12,
-                                    float a13)
+                                    int a12)
 {
     detourFireBullets->GetBeingCalled() = true;
 
@@ -234,7 +235,7 @@ void CFireBulletFix::FX_FireBullets(int playerIndex,
     detourFireBullets->CallOriginal(playerIndex,
                                     a1,
                                     a2,
-                                    vecOldShootPos[playerIndex],
+                                    vOrigin,
                                     qAngle,
                                     a5,
                                     a6,
@@ -243,26 +244,45 @@ void CFireBulletFix::FX_FireBullets(int playerIndex,
                                     a9,
                                     a10,
                                     a11,
-                                    a12,
-                                    a13);
+                                    a12);
 
     detourFireBullets->GetBeingCalled() = false;
 }
 
+#ifndef _WINDLL
 void CFireBulletFix::CPlayerMove_RunCommand(ptr_t thisptr,
                                             ptr_t player,
                                             ptr_t pCmd,
                                             ptr_t moveHelper)
+#else
+void __fastcall CFireBulletFix::CPlayerMove_RunCommand(ptr_t thisptr,ptr_t edx,
+	ptr_t player,
+	ptr_t pCmd,
+	ptr_t moveHelper)
+#endif
 {
     detourRunCommand->GetBeingCalled() = true;
 
     int playerIndex = GetPlayerIndex(reinterpret_cast<uintptr_t>(player));
 
     // GetEyePosition
+
+#ifndef _WINDLL
     vecOldShootPos[playerIndex] = reinterpret_cast<Vector (*)(ptr_t)>(
         sub_GetVTable(player)[131])(player);
+#else
+	vecOldShootPos[playerIndex] = reinterpret_cast<Vector(__thiscall*)(ptr_t)>(
+		sub_GetVTable(player)[130])(player);
+#endif
 
+	// Msg("%f %f %f\n", vecOldShootPos[playerIndex].x, vecOldShootPos[playerIndex].y, vecOldShootPos[playerIndex].z);
+
+#ifndef _WINDLL
     detourRunCommand->CallOriginal(thisptr, player, pCmd, moveHelper);
+#else
+	detourRunCommand->_thiscall_CallOriginal(thisptr, player, pCmd, moveHelper);
+#endif
+
     detourRunCommand->GetBeingCalled() = false;
 }
 

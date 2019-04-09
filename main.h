@@ -365,6 +365,35 @@ class CDetour
             Detour();
     }
 
+#ifdef _WINDLL
+	FORCEINLINE auto _thiscall__CallOriginal(vArgs... pArgs) -> RetType
+	{
+		return reinterpret_cast<RetType(__thiscall*)(vArgs...)>(m_pFunction)(pArgs...);
+	}
+
+	FORCEINLINE auto _thiscall_RetCallOriginal(vArgs... pArgs) -> RetType
+	{
+		Reset();
+		RetType retType = _thiscall__CallOriginal(pArgs...);
+
+		// Wait for function to be ran
+		if (!m_bAskDelete)
+			Detour();
+
+		return retType;
+	}
+
+	FORCEINLINE void _thiscall_CallOriginal(vArgs... pArgs)
+	{
+		Reset();
+		_thiscall__CallOriginal(pArgs...);
+
+		// Wait for function to be ran
+		if (!m_bAskDelete)
+			Detour();
+	}
+#endif
+
     void safeDelete()
     {
         m_bAskDelete = true;
@@ -654,14 +683,19 @@ class CFireBulletFix : public IServerPluginCallbacks, public IGameEventListener
                                float a9,
                                float a10,
                                float a11,
-                               int a12,
-                               float a13);
+                               int a12);
 
+#ifndef _WINDLL
     static void CPlayerMove_RunCommand(ptr_t thisptr,
                                        ptr_t player,
                                        ptr_t pCmd,
                                        ptr_t moveHelper);
-
+#else
+	static void __fastcall CPlayerMove_RunCommand(ptr_t thisptr,ptr_t edx,
+		ptr_t player,
+		ptr_t pCmd,
+		ptr_t moveHelper);
+#endif
  private:
     int m_iClientCommandIndex;
 
@@ -678,8 +712,7 @@ class CFireBulletFix : public IServerPluginCallbacks, public IGameEventListener
                    float,
                    float,
                    float,
-                   int,
-                   float>* detourFireBullets;
+                   int>* detourFireBullets;
 
     static CDetour<void, ptr_t, ptr_t, ptr_t, ptr_t>* detourRunCommand;
 
