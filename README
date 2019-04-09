@@ -1,18 +1,18 @@
 WINDOWS:
-Use visual studio 2019 and compile. Should be very easy.
 
-
-
+  WARNING!!!
+  This plugin doesn't work yet with windows, your shots won't be registered. Don't use this yet windows users.
+  But prepare visual studio 2019 for compiling!
 
 LINUX:
 
-PRE-REQUIRES:
-steam-runtime for compiling: http://media.steampowered.com/client/runtime/steam-runtime-sdk_latest.tar.xz
-sudo apt-get install g++-multilib gcc-multilib
+  PRE-REQUIRES:
+  steam-runtime for compiling: http://media.steampowered.com/client/runtime/steam-runtime-sdk_latest.tar.xz
+  sudo apt-get install g++-multilib gcc-multilib
 
-HOWTO:
-1) Extract steam-runtime-sdk_latest.tar.xz
-2) enter into the extracted archive and execute shell-i386.sh
-3) Goto the source code of firebulletsfix and run ./compile.sh
-4) Place firebulletsfix.vdf and firebulletsfix.so files inside your csgo/addons folder
-5) Restart server (or use plugin_load addons/firebulletsfix) and profit.
+  HOWTO:
+  1) Extract steam-runtime-sdk_latest.tar.xz
+  2) enter into the extracted archive and execute shell-i386.sh
+  3) Goto the source code of firebulletsfix and run ./compile.sh
+  4) Place firebulletsfix.vdf and firebulletsfix.so files inside your csgo/addons folder
+  5) Restart server (or use plugin_load addons/firebulletsfix) and profit.
