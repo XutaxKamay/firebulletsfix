@@ -1,3 +1,10 @@
+WINDOWS:
+Use visual studio 2019 and compile. Should be very easy.
+
+
+
+
+LINUX:
 
 PRE-REQUIRES:
 steam-runtime for compiling: http://media.steampowered.com/client/runtime/steam-runtime-sdk_latest.tar.xz
