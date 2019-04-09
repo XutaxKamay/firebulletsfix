@@ -4,9 +4,11 @@
 typedef void (*Msg_t)(const char* msg, ...);
 extern Msg_t Msg;
 
-#include "patternscan.h"
-
+#ifndef FORCEINLINE
 #define FORCEINLINE inline
+#endif
+
+#pragma warning(disable:4100)
 
 #if __x86_64__ || __ppc64__
 #define MX64
@@ -73,6 +75,24 @@ FORCEINLINE auto sub_GetVTable(ptr_t pAddress) -> T
 typedef void* (*CreateInterfaceFn)(const char* pName, int* pReturnCode);
 typedef void* (*InstantiateInterfaceFn)();
 
+#if defined( _WINDLL )
+
+// Used for dll exporting and importing
+#define DLL_EXPORT				extern "C" __declspec( dllexport )
+#define DLL_IMPORT				extern "C" __declspec( dllimport )
+
+// Can't use extern "C" when DLL exporting a class
+#define DLL_CLASS_EXPORT		__declspec( dllexport )
+#define DLL_CLASS_IMPORT		__declspec( dllimport )
+
+// Can't use extern "C" when DLL exporting a global
+#define DLL_GLOBAL_EXPORT		extern __declspec( dllexport )
+#define DLL_GLOBAL_IMPORT		extern __declspec( dllimport )
+
+#define DLL_LOCAL
+
+#else
+
 #define DLL_EXPORT extern "C" __attribute__((visibility("default")))
 #define DLL_IMPORT extern "C"
 
@@ -83,6 +103,8 @@ typedef void* (*InstantiateInterfaceFn)();
 #define DLL_GLOBAL_IMPORT extern
 
 #define DLL_LOCAL __attribute__((visibility("hidden")))
+
+#endif
 
 // Use this to expose an interface that can have multiple instances.
 // e.g.:
@@ -188,7 +210,10 @@ class CDetour
  public:
     CDetour(ptr_t pFunction, ptr_t pNewFunction) :
         m_pFunction(nullptr), m_pNewFunction(nullptr), m_SavedBytes {0},
-        m_PageSize(0), m_PageStart(0), m_bIsBeingCalled(false),
+#ifndef _WINDLL
+        m_PageSize(0), m_PageStart(0),
+#endif
+		m_bIsBeingCalled(false),
         m_bAskDelete(false),
 #ifdef MX64
         m_LongJmp
@@ -208,9 +233,11 @@ class CDetour
         m_pNewFunction = pNewFunction;
         m_SavedBytes.resize(m_LongJmp.size());
 
+#ifndef _WINDLL
         m_PageSize = (unsigned long)sysconf(_SC_PAGE_SIZE);
 
         m_PageStart = reinterpret_cast<uintptr_t>(m_pFunction) & -m_PageSize;
+#endif
 
 #ifdef MX64
         memcpy(reinterpret_cast<ptr_t>(
@@ -237,6 +264,7 @@ class CDetour
 
         memcpy(m_SavedBytes.data(), m_pFunction, m_SavedBytes.size());
 
+#ifndef _WINDLL
         if (mprotect(reinterpret_cast<ptr_t>(m_PageStart),
                      m_PageSize,
                      PROT_READ | PROT_WRITE | PROT_EXEC) != -1)
@@ -248,6 +276,17 @@ class CDetour
                             m_PageSize,
                             PROT_READ | PROT_EXEC) != -1;
         }
+#else
+		DWORD prot;
+
+		if (VirtualProtect(m_pFunction, m_LongJmp.size(), PAGE_EXECUTE_READWRITE, &prot))
+		{
+			memcpy(m_pFunction, m_LongJmp.data(), m_LongJmp.size());
+
+			return VirtualProtect(m_pFunction, m_LongJmp.size(), prot, &prot);
+		}
+
+#endif
 
         return false;
     }
@@ -257,6 +296,7 @@ class CDetour
         if (!IsValid())
             return false;
 
+#ifndef _WINDLL
         if (mprotect(reinterpret_cast<ptr_t>(m_PageStart),
                      m_PageSize,
                      PROT_READ | PROT_WRITE | PROT_EXEC) != -1)
@@ -269,6 +309,17 @@ class CDetour
                             PROT_READ | PROT_EXEC) != -1;
         }
 
+#else
+		DWORD prot;
+
+		if (VirtualProtect(m_pFunction, m_SavedBytes.size(), PAGE_EXECUTE_READWRITE, &prot))
+		{
+			memcpy(m_pFunction, m_SavedBytes.data(), m_SavedBytes.size());
+
+			return VirtualProtect(m_pFunction, m_SavedBytes.size(), prot, &prot);
+		}
+
+#endif
         return false;
     }
 
@@ -338,8 +389,10 @@ class CDetour
  private:
     ptr_t m_pFunction, m_pNewFunction;
     std::vector<BYTE> m_SavedBytes;
+#ifndef _WINDLL
     unsigned long m_PageSize;
     uintptr_t m_PageStart;
+#endif
     bool m_bIsBeingCalled, m_bAskDelete;
     std::vector<BYTE> m_LongJmp;
 };
@@ -521,7 +574,7 @@ class CFireBulletFix : public IServerPluginCallbacks, public IGameEventListener
     virtual void UnPause(void) {};
     virtual const char* GetPluginDescription(void)
     {
-        return "FX_FireBullet fix by xutaxkamay.";
+        return "FX_FireBullets fix by xutaxkamay.";
     };
     virtual void LevelInit(char const* pMapName) {};
     virtual void ServerActivate(edict_t* pEdictList,

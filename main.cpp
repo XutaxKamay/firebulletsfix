@@ -1,6 +1,7 @@
 // clang-format off
 #include "headers.h"
 #include "main.h"
+#include "patternscan.h"
 // clang-format on
 
 CFireBulletFix g_FireBulletFix;
@@ -25,15 +26,25 @@ CDetour<void, ptr_t, ptr_t, ptr_t, ptr_t>* CFireBulletFix::detourRunCommand;
 
 Vector CFireBulletFix::vecOldShootPos[MAX_PLAYERS + 1];
 
+#ifndef _WINDLL
 Msg_t Msg = reinterpret_cast<Msg_t>(
     dlsym(dlopen("bin/engine.so", RTLD_NOW), "Msg"));
+#else
+Msg_t Msg = reinterpret_cast<Msg_t>(GetProcAddress(GetModuleHandleA("bin/tier0.dll"), "Msg"));
+#endif
 
+#ifndef _WINDLL
 CPatternScan patternGlobals("csgo/bin/server.so",
                             "A1 ? ? ? ? F3 0F 10 40 ? 0F 2F 43 40 0F 86 ? ? ? "
                             "? 8B 06 8D 96");
-
 static auto uGlobals = *reinterpret_cast<uintptr_t*>(
-    patternGlobals.get<uintptr_t>() + 1);
+	patternGlobals.get<uintptr_t>() + 1);
+#else
+CPatternScan patternGlobals("csgo/bin/server.dll",
+							"FF 50 10 A1 ? ? ? ? F3 0F 10 40");
+static auto uGlobals = *reinterpret_cast<uintptr_t*>(
+	patternGlobals.get<uintptr_t>() + 4);
+#endif
 
 InterfaceReg* InterfaceReg::s_pInterfaceRegs = nullptr;
 
@@ -83,21 +94,33 @@ void CFireBulletFix::Unload()
 bool CFireBulletFix::Load(CreateInterfaceFn interfaceFactory,
                           CreateInterfaceFn gameServerFactory)
 {
+#ifndef _WINDLL
     auto pRunCommandAddress = CPatternScan("csgo/bin/server.so",
                                            "55 89 E5 57 56 53 81 EC ? ? ? ? 8B "
                                            "5D 0C 8B 7D 08 8B 75 10 8B 93")
                                   .get();
+#else
+	auto pRunCommandAddress = CPatternScan("csgo/bin/server.dll",
+										   "55 8B EC 83 E4 F8 83 EC 2C 53 56 8B "
+										   "75 08 8B D9")
+								  .get();
+#endif
 
     detourRunCommand = new CDetour<void, ptr_t, ptr_t, ptr_t, ptr_t>(
         pRunCommandAddress, reinterpret_cast<ptr_t>(CPlayerMove_RunCommand));
 
     detourRunCommand->Detour();
     Msg("pRunCommand_Detour %p ...\n", pRunCommandAddress);
-
+#ifndef _WINDLL
     auto pFX_FireBullets = CPatternScan("csgo/bin/server.so",
                                         "55 89 E5 57 56 53 81 EC ? ? ? ? 8B 5D "
                                         "10 8B 75 14 8B 7D 18 85 DB 0F 84")
                                .get();
+#else
+	auto pFX_FireBullets = CPatternScan("csgo/bin/server.dll",
+										"55 8B EC 83 E4 F8 81 EC 40 02 00 00")
+							   .get();
+#endif
 
     detourFireBullets = new CDetour<void,
                                     int,

@@ -20,6 +20,7 @@ class CPatternScan
         findCode();
     }
 
+#ifndef _WINDLL
     static int getCodeStartAddr(dl_phdr_info* info,
                                 size_t size,
                                 ptr_t moduleBase)
@@ -74,8 +75,11 @@ class CPatternScan
         return 0;
     }
 
+#endif
+
     void findCode()
     {
+#ifndef _WINDLL
         auto lm = reinterpret_cast<link_map*>(
             dlopen(m_strModule.c_str(), RTLD_NOW));
 
@@ -102,14 +106,24 @@ class CPatternScan
             Msg("Couldn't find end addr\n");
             return;
         }
+#else
 
-        auto scanMem = reinterpret_cast<uintptr_t>(startAddr);
+		auto startAddr = reinterpret_cast<uintptr_t>(GetModuleHandleA(m_strModule.c_str()));
+
+		auto dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(startAddr);
+
+		auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(reinterpret_cast<uintptr_t>(dosHeader) + dosHeader->e_lfanew);
+
+		auto endAddr = startAddr + *reinterpret_cast<uintptr_t*>(&ntHeaders->OptionalHeader.SizeOfImage);
+#endif
+		
+        auto scanMem = startAddr;
 
         while (m_ptrFound == nullptr)
         {
             auto byte = reinterpret_cast<unsigned char*>(scanMem);
 
-            if (byte > endAddr)
+            if (reinterpret_cast<uintptr_t>(byte) > endAddr)
             {
                 Msg("Couldn't find pattern: %s\n", m_strPattern.c_str());
                 assert(0);

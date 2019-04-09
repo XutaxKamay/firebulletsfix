@@ -1,6 +1,7 @@
 // clang-format off
 #include "headers.h"
 #include "main.h"
+#include "patternscan.h"
 // clang-format on
 
 unsigned char hex_digit_to_byte(char c)

@@ -1,2 +1,7 @@
 *.so
 *.o
+Release/
+.vs/
+*.vcxproj.user
+*.sln
+*.dll
