@@ -9,7 +9,7 @@ extern Msg_t Msg;
 #endif
 
 #ifdef _WINDLL
-#pragma warning(disable:4100)
+#pragma warning(disable : 4100)
 #endif
 
 #if __x86_64__ || __ppc64__
@@ -77,19 +77,19 @@ FORCEINLINE auto sub_GetVTable(ptr_t pAddress) -> T
 typedef void* (*CreateInterfaceFn)(const char* pName, int* pReturnCode);
 typedef void* (*InstantiateInterfaceFn)();
 
-#if defined( _WINDLL )
+#if defined(_WINDLL)
 
 // Used for dll exporting and importing
-#define DLL_EXPORT				extern "C" __declspec( dllexport )
-#define DLL_IMPORT				extern "C" __declspec( dllimport )
+#define DLL_EXPORT extern "C" __declspec(dllexport)
+#define DLL_IMPORT extern "C" __declspec(dllimport)
 
 // Can't use extern "C" when DLL exporting a class
-#define DLL_CLASS_EXPORT		__declspec( dllexport )
-#define DLL_CLASS_IMPORT		__declspec( dllimport )
+#define DLL_CLASS_EXPORT __declspec(dllexport)
+#define DLL_CLASS_IMPORT __declspec(dllimport)
 
 // Can't use extern "C" when DLL exporting a global
-#define DLL_GLOBAL_EXPORT		extern __declspec( dllexport )
-#define DLL_GLOBAL_IMPORT		extern __declspec( dllimport )
+#define DLL_GLOBAL_EXPORT extern __declspec(dllexport)
+#define DLL_GLOBAL_IMPORT extern __declspec(dllimport)
 
 #define DLL_LOCAL
 
@@ -215,8 +215,7 @@ class CDetour
 #ifndef _WINDLL
         m_PageSize(0), m_PageStart(0),
 #endif
-		m_bIsBeingCalled(false),
-        m_bAskDelete(false),
+        m_bIsBeingCalled(false), m_bAskDelete(false),
 #ifdef MX64
         m_LongJmp
     {
@@ -279,14 +278,15 @@ class CDetour
                             PROT_READ | PROT_EXEC) != -1;
         }
 #else
-		DWORD prot;
+        DWORD prot;
 
-		if (VirtualProtect(m_pFunction, m_LongJmp.size(), PAGE_EXECUTE_READWRITE, &prot))
-		{
-			memcpy(m_pFunction, m_LongJmp.data(), m_LongJmp.size());
+        if (VirtualProtect(
+                m_pFunction, m_LongJmp.size(), PAGE_EXECUTE_READWRITE, &prot))
+        {
+            memcpy(m_pFunction, m_LongJmp.data(), m_LongJmp.size());
 
-			return VirtualProtect(m_pFunction, m_LongJmp.size(), prot, &prot);
-		}
+            return VirtualProtect(m_pFunction, m_LongJmp.size(), prot, &prot);
+        }
 
 #endif
 
@@ -312,14 +312,17 @@ class CDetour
         }
 
 #else
-		DWORD prot;
+        DWORD prot;
 
-		if (VirtualProtect(m_pFunction, m_SavedBytes.size(), PAGE_EXECUTE_READWRITE, &prot))
-		{
-			memcpy(m_pFunction, m_SavedBytes.data(), m_SavedBytes.size());
+        if (VirtualProtect(m_pFunction,
+                           m_SavedBytes.size(),
+                           PAGE_EXECUTE_READWRITE,
+                           &prot))
+        {
+            memcpy(m_pFunction, m_SavedBytes.data(), m_SavedBytes.size());
 
-			return VirtualProtect(m_pFunction, m_SavedBytes.size(), prot, &prot);
-		}
+            return VirtualProtect(m_pFunction, m_SavedBytes.size(), prot, &prot);
+        }
 
 #endif
         return false;

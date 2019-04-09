@@ -108,15 +108,18 @@ class CPatternScan
         }
 #else
 
-		auto startAddr = reinterpret_cast<uintptr_t>(GetModuleHandleA(m_strModule.c_str()));
+        auto startAddr = reinterpret_cast<uintptr_t>(
+            GetModuleHandleA(m_strModule.c_str()));
 
-		auto dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(startAddr);
+        auto dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(startAddr);
 
-		auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(reinterpret_cast<uintptr_t>(dosHeader) + dosHeader->e_lfanew);
+        auto ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(
+            reinterpret_cast<uintptr_t>(dosHeader) + dosHeader->e_lfanew);
 
-		auto endAddr = startAddr + *reinterpret_cast<uintptr_t*>(&ntHeaders->OptionalHeader.SizeOfImage);
+        auto endAddr = startAddr + *reinterpret_cast<uintptr_t*>(
+                                       &ntHeaders->OptionalHeader.SizeOfImage);
 #endif
-		
+
         auto scanMem = startAddr;
 
         while (m_ptrFound == nullptr)

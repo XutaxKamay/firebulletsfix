@@ -24,4 +24,3 @@ typedef uint8_t byte;
 typedef void* ptr_t;
 typedef unsigned char BYTE;
 typedef int QueryCvarCookie_t;
-
