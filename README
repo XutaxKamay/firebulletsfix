@@ -1,0 +1,2 @@
+You need DHooks in order to compile it.
+Sadly, it still crashes while using DHookSetReturnVector, I'm investigating why.
