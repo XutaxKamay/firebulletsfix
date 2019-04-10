@@ -15,7 +15,7 @@ public Plugin myinfo =
 	author = "xutaxkamay",
 	description = "Fixes shoot position",
 	version = "1.0",
-	url = "https://steamcommunity.com/profiles/76561198171398301"
+	url = "https://forums.alliedmods.net/showthread.php?p=2646571"
 };
 
 public void OnPluginStart()

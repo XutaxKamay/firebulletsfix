@@ -1,7 +1,3 @@
-*.so
-*.o
-Release/
-.vs/
-*.vcxproj.user
-*.sln
-*.dll
+*.smx
+spcomp
+scripting/include/
