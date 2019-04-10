@@ -1,0 +1,15 @@
+﻿"Games"
+{
+	"csgo"
+	{
+		"Offsets"
+		{
+			"Weapon_ShootPosition"
+			{
+				"windows"	"289"
+				"linux"	"290"
+				"mac"		"290"
+			}
+		}
+	}
+}
