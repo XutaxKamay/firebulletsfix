@@ -1,5 +1,18 @@
 ﻿"Games"
 {
+	"cstrike"
+	{
+		"Offsets"
+		{
+			"Weapon_ShootPosition"
+			{
+				"windows"	"265"
+				"linux"		"266"
+				"mac"		"266"
+			}
+		}
+	}
+
 	"csgo"
 	{
 		"Offsets"
