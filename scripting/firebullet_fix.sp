@@ -38,7 +38,7 @@ public void OnPluginStart()
 
 	CloseHandle(gameData);
 
-	g_hWeapon_ShootPosition = DHookCreate(offset, HookType_Entity, ReturnType_Int, ThisPointer_CBaseEntity);
+	g_hWeapon_ShootPosition = DHookCreate(offset, HookType_Entity, ReturnType_Vector, ThisPointer_CBaseEntity);
 
 	if (g_hWeapon_ShootPosition == INVALID_HANDLE)
 	{
@@ -72,6 +72,7 @@ public Action OnPlayerRunCmd(int client)
 
 public MRESReturn Weapon_ShootPosition_Post(int client, Handle hReturn)
 {
+	PrintToChat(client, "Calling old");
 	float vec[3];
 	DHookGetReturnVector(hReturn, vec);
 	PrintToChat(client, "Calling new %f %f %f - %f %f %f", vec[0], vec[1], vec[2], g_vecOldWeaponShootPos[client][0], g_vecOldWeaponShootPos[client][1], g_vecOldWeaponShootPos[client][2]);
