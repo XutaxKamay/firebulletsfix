@@ -6,9 +6,9 @@
 		{
 			"Weapon_ShootPosition"
 			{
-				"windows"	"290"
-				"linux"		"291"
-				"mac"		"291"
+				"windows"	"265"
+				"linux"		"266"
+				"mac"		"266"
 			}
 		}
 	}
@@ -19,9 +19,9 @@
 		{
 			"Weapon_ShootPosition"
 			{
-				"windows"	"289"
-				"linux"		"290"
-				"mac"		"290"
+				"windows"	"290"
+				"linux"		"291"
+				"mac"		"291"
 			}
 		}
 	}
