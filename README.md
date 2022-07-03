@@ -1,4 +1,4 @@
-# FireBulletsFix
+# firebulletsfix
 
 Fixes shooting position problem who is displaced by one tick.
 
