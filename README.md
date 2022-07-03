@@ -1,6 +1,6 @@
-# FixFireBullets
+# FireBulletsFix
 
-Fixes shooting problems by sending positions displaced by one tick.
+Fixes shooting position problem who is displaced by one tick.
 
 ## Requirements
 
