@@ -21,7 +21,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	Handle gameData = LoadGameConfigFile("fixfirebullets.games");
+	Handle gameData = LoadGameConfigFile("firebulletsfix.games");
 
 	if (gameData == INVALID_HANDLE)
 	{
