@@ -40,7 +40,7 @@ public void OnPluginStart()
 	PrepSDKCall_SetReturnInfo(SDKType_Vector, SDKPass_ByValue);
 	g_hWeapon_ShootPosition_SDKCall = EndPrepSDKCall();
 
-	if (g_hWeapon_ShootPosition_SDKCall == INVALID_HANDLE;
+	if (g_hWeapon_ShootPosition_SDKCall == INVALID_HANDLE)
 		SetFailState("[FireBullets Fix] couldn't prepare Weapon_ShootPosition SDKCall");
 
 
