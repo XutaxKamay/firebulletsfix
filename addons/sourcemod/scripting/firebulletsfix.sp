@@ -13,7 +13,7 @@ public Plugin myinfo =
 	name = "Bullet position fix",
 	author = "xutaxkamay",
 	description = "Fixes shoot position",
-	version = "1.0.1",
+	version = "1.0.2",
 	url = "https://forums.alliedmods.net/showthread.php?p=2646571"
 };
 
@@ -51,19 +51,22 @@ public void OnPluginStart()
 
 	delete gameData;
 
-	for (int client = 1; client <= MaxClients; client++)
-		OnClientPutInServer(client);
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i))
+			OnClientPutInServer(i);
+	}
 }
 
 public void OnClientPutInServer(int client)
 {
-	if (IsValidClient(client))
+	if (!IsFakeClient(client))
 		g_hWeapon_ShootPosition.HookEntity(Hook_Post, client, Weapon_ShootPosition_Post);
 }
 
 public Action OnPlayerRunCmd(int client)
 {
-	if (IsValidClient(client))
+	if (IsPlayerAlive(client) && !IsFakeClient(client))
 	{
 		g_bCallingWeapon_ShootPosition = true;
 		SDKCall(g_hWeapon_ShootPosition_SDKCall, client, g_vecOldWeaponShootPos[client]);
@@ -86,9 +89,4 @@ public MRESReturn Weapon_ShootPosition_Post(int client, DHookReturn hReturn)
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
-}
-
-stock bool IsValidClient(int client)
-{
-	return ((0 < client <= MaxClients) && IsClientConnected(client) && !IsFakeClient(client) && IsClientInGame(client) && !IsClientSourceTV(client) && !IsClientReplay(client));
 }
