@@ -1,3 +1,13 @@
-*.smx
 spcomp
 scripting/include/
+
+build/
+release/
+
+.DS_Store
+.vscode
+
+*.smx
+plugins/
+.sourceknight
+.venv
